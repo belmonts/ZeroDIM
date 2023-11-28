@@ -1,5 +1,5 @@
 #Author: belmontz, sept 5th, 2023
-
+module zerobioreactor
 #Call all the packages we will be using for our sensitivity analysis
 using Plots
 using DifferentialEquations
@@ -40,13 +40,13 @@ function simpleCSTR(du, u, p, t)
   end
 
 #Globally define our timescale, initial conditions, and reaction parameters for CSTR
-u0 = [0.0; 25.0; 0.0]
-rpvc = reactionparameter_def()
+#u0 = [0.0; 25.0; 0.0]
+#rpvc = reactionparameter_def()
 
 #Define our given problem
-prob = ODEProblem(simpleCSTR, u0, tspan, rpvc)
+#prob = ODEProblem(simpleCSTR, u0, tspan, rpvc)
 
-sol = solve(prob)
+#sol = solve(prob)
 
 function zerodim(du, u, p, t)
   q = p[1]
@@ -64,43 +64,14 @@ function zerodim(du, u, p, t)
   du[4] = -q*u[4] + β*(u[3]/(ks + u[3]))*(u[1] + u[2])
 end
 
-u0z = [1.0; 1.0; 0.0; 0.0]
+u0z = [0.0; 0.0; 5.0; 0.0]
 
 probz = ODEProblem(zerodim, u0z, tspan, rpvc)
 
 solz = solve(probz)
 
-#Local sensitivity problem
+plot(solz)
 
-
-
-
-animate(sol)
-t = collect(range(0, stop=10, length=100))
-alg = Rosenbrock23()
-
-f1 = function (p)
-  prob1 = remake(probz;p=p)
-  sol  = solve(prob1, alg; saveat=t)
-  [sol[end][3]]#we make our designated region the final solution here.
 end
-
-#We must convert our rpvc vector into a tuple for sensitivity analysis
-
-low_bound = rpvc*0.95
-
-low_bound = tuple(low_bound...)
-
-up_bound  = rpvc*1.05
-
-up_bound = tuple(up_bound...)
-
-
-
-
-param_range = [low_bound, up_bound]
-
-sobol_result = GlobalSensitivity.gsa(f1,Sobol(), [low_bound, up_bound], samples = 1000)
-
 
 
