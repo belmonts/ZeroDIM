@@ -10,5 +10,7 @@
 			"path": "../MATH6020/xi"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"julia.environmentPath": "c:\\Users\\AMazk\\OneDrive\\Desktop\\MASTERS\\FALL 2023\\ZeroDIM"
+	}
 }
