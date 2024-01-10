@@ -11,8 +11,13 @@ pyplot()
 function reactionparameter_def()
     q = 1.2
     μ = 6.0
+<<<<<<< HEAD
     δ = 0.01
     α = 2.0
+=======
+    δ = 1.0
+    α = 0.01
+>>>>>>> ffda5a5be036b174fb69a7ab383a0cca45ecab71
     Y = 2.0
     β = 1.0
     ks = 4.0
@@ -21,6 +26,16 @@ function reactionparameter_def()
     return rpvc
 end
 
+function monod(c, ks)
+
+  if c <= 0.0
+    return m = 0.0
+  else
+    return m = c/(c + ks)
+  end
+
+  return m
+end
 #Define our single species CSTR model
 function simpleCSTR(du, u, p, t)
     q = p[1]
@@ -41,6 +56,10 @@ function simpleCSTR(du, u, p, t)
 
 #Globally define our timescale, initial conditions, and reaction parameters for CSTR
 #u0 = [0.0; 25.0; 0.0]
+<<<<<<< HEAD
+=======
+
+>>>>>>> ffda5a5be036b174fb69a7ab383a0cca45ecab71
 rpvc = reactionparameter_def()
 
 #Define our given problem
@@ -72,6 +91,7 @@ function zerodim(du, u, p, t)
   ks = p[7]
   Sn = p[8]
 
+<<<<<<< HEAD
   du[1] = -q*u[1] + μ*(u[3]/(ks + u[3]))*u[1] - δ*u[2] + α*u[1]
   du[2] = μ*(u[3]/(ks + u[3]))*u[2] + δ*u[2] - α*u[1]
   du[3] = q*(Sn - u[3]) - (μ/Y)*(u[3]/(ks + u[3]))*(u[1] + u[2])
@@ -100,6 +120,12 @@ function zerodimS2(du, u, p, t)
   du[2] = μ*(u[3]/(ks + u[3]))*u[2] - δ*u[2]^2 + α*u[1]^2
   du[3] = q*(Sn - u[3]) - (μ/Y)*(u[3]/(ks + u[3]))*(u[1] + u[2])
   du[4] = -q*u[4] + β*(u[3]/(ks + u[3]))*(u[1] + u[2])
+=======
+  du[1] = -q*u[1] + μ*monod(u[3], ks)*u[1] - δ*u[2] + α*u[1]
+  du[2] = μ*(monod(u[3], ks))*u[2] + δ*u[2] - α*u[1]
+  du[3] = q*(Sn - u[3]) - (μ/Y)*(monod(u[3], ks))*(u[1] + u[2])
+  du[4] = -q*u[4] + β*(monod(u[3], ks))*(u[1] + u[2])
+>>>>>>> ffda5a5be036b174fb69a7ab383a0cca45ecab71
 end
 
 prob2 = ODEProblem(zerodimS2, u0, tspan, rpvc)
@@ -110,4 +136,43 @@ dim1plot = plot(sol)
 dim2plot = plot(sol2)
 
 plot(dim1plot, dim2plot, layout = (1,2))
+
+
+function zerodim2D(du, u, p, t)
+  q = p[1]
+  μ = p[2]
+  δ = p[3]
+  α = p[4]
+  Y = p[5]
+  β = p[6]
+  ks = p[7]
+  Sn = p[8]
+
+  du[1] = -q*u[1] + μ*monod(u[3], ks)*u[1] - δ*u[2]^2 + α*u[1]^2
+  du[2] = μ*(monod(u[3], ks))*u[2] + δ*u[2]^2 - α*u[1]^2
+  du[3] = q*(Sn - u[3]) - (μ/Y)*(monod(u[3], ks))*(u[1] + u[2])
+  du[4] = -q*u[4] + β*(monod(u[3], ks))*(u[1] + u[2])
+end
+
+
+u0 = [1.0; 0.0; 5.0; 0.0]
+
+tspan = (0.0, 10.0)
+
+prob = ODEProblem(zerodim, u0, tspan, rpvc)
+
+prob2D = ODEProblem(zerodim2D, u0, tspan, rpvc)
+
+sol = solve(prob)
+
+sol2D = solve(prob2D)
+
+
+dim1plot = plot(sol)
+
+dim2plot = plot(sol2D)
+
+plot(dim1plot, dim2plot)
+
+
 
