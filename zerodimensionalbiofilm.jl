@@ -186,19 +186,6 @@ function worker_ant(p1, p2,Numloops,scaler)
   return heatmap
 end
 
-function multiplotter(p1,p2, Numloops, scaler)
-  Numloops = Numloops
-  psl = Array{Any}(nothing, Numloops)
-  rpvc = reactionparameter_def()
-  for i in 1:Numloops
-    rpvc[p1] = rpvc[p1]*scaler
-    rpvc[p2] = rpvc[p2]*scaler
-    lprob = ODEProblem(zerodim, u0, tspan, rpvc)
-    lsol = solve(lprob)
-    psl[i] = plot(lsol)
-  end
-  return psl
-end
 
 function multiplot_stored2D(p1,p2,Numloops,scaler)
   stl = Array{Any}(nothing,Numloops)
