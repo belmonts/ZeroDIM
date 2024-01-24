@@ -1,10 +1,8 @@
 #Author: belmontz, sept 5th, 2023
 
 #Call all the packages we will be using for our sensitivity analysis
-using Plots
 using DifferentialEquations
 using LinearAlgebra
-pyplot()
 using CairoMakie
 
 #Define our function containing all the reaction parameters of our problem
@@ -98,22 +96,7 @@ end
 u0 = [1.0; 0.0; 5.0; 0.0]
 
 tspan = (0.0, 10.0)
-"""
-prob = ODEProblem(zerodim, u0, tspan, rpvc)
 
-prob2D = ODEProblem(zerodim2D, u0, tspan, rpvc)
-
-sol = solve(prob)
-
-sol2D = solve(prob2D)
-
-
-dim1plot = plot(sol)
-
-dim2plot = plot(sol2D)
-
-plot(dim1plot, dim2plot)
-"""
 
 function plotter(pv, Numloops, scaler)
   Numloops = Numloops
@@ -127,7 +110,6 @@ function plotter(pv, Numloops, scaler)
   end
   return psl
 end
-
 
 #function that will take two paramters and scale them at the same scalar.
 function multiplotter(p1,p2, Numloops, scaler)
@@ -168,6 +150,42 @@ function multiplot_stored(p1,p2,Numloops,scaler)
   mx = Float64.(mx)
   my = Float64.(my)
   mz = Float64.(mz)
+  return [mx,my,mz]
+end
+
+function multiplot_storedV2(Numloops)
+  stl = Array{Float64, 2}(undef,Numloops, Numloops)
+  print(stl)
+  rpvc = reactionparameter_def()
+  α = Array{Float64}(undef, Numloops)
+  δ = Array{Float64}(undef, Numloops)
+  α_min = 1.1
+  α_max = 2.0
+  δ_min = 1.1
+  δ_max = 2.0
+  for i in 1:Numloops
+    for j in 1:Numloops
+      α[i] = α_min + (i-1)*((α_max - α_min)/(Numloops - 1))
+      δ[j] = δ_min + (j-1)*((δ_max - δ_min)/(Numloops - 1))
+      rpvc[3] = α[i]
+      rpvc[4] = δ[j]
+      lprob = ODEProblem(zerodim, u0, tspan, rpvc)
+      lsol = solve(lprob)
+      stl[i,j] = [rpvc[3],rpvc[4],lsol[3][end]]
+    end
+  end
+
+  #Define our axes
+  mx = Array{Float64}(undef,Numloops)
+  my = Array{Float64}(undef,Numloops)
+  mz = Array{Float64}(undef,Numloops)
+  for i in 1:Numloops
+    for j in 1:Numloops
+      mx[i,j] = stl[i,j][1]
+      my[i,j] = stl[i,j][2]
+      mz[i,j] = stl[i,j][3]
+    end
+  end
   return [mx,my,mz]
 end
 
