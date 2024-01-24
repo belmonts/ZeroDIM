@@ -153,22 +153,18 @@ function multiplot_stored(p1,p2,Numloops,scaler)
   return [mx,my,mz]
 end
 
-function multiplot_storedV2(Numloops)
-  stl = Array{Float64, 2}(undef,Numloops, Numloops)
-  print(stl)
+function multiplot_storedV2(N_i, N_j)
+  stl = Array{Float64,2}(undef,N_i, N_j)
   rpvc = reactionparameter_def()
-  α = Array{Float64}(undef, Numloops)
-  δ = Array{Float64}(undef, Numloops)
+  stl
   α_min = 1.1
   α_max = 2.0
   δ_min = 1.1
   δ_max = 2.0
-  for i in 1:Numloops
-    for j in 1:Numloops
-      α[i] = α_min + (i-1)*((α_max - α_min)/(Numloops - 1))
-      δ[j] = δ_min + (j-1)*((δ_max - δ_min)/(Numloops - 1))
-      rpvc[3] = α[i]
-      rpvc[4] = δ[j]
+  for i in 1:N_i
+    for j in 1:N_j
+      rpvc[3] = α_min + (i-1)*((α_max - α_min)/(N_i - 1))
+      rpvc[4] = δ_min + (j-1)*((δ_max - δ_min)/(N_j - 1))
       lprob = ODEProblem(zerodim, u0, tspan, rpvc)
       lsol = solve(lprob)
       stl[i,j] = [rpvc[3],rpvc[4],lsol[3][end]]
