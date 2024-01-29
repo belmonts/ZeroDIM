@@ -153,36 +153,48 @@ function multiplot_stored(p1,p2,Numloops,scaler)
   return [mx,my,mz]
 end
 
-function multiplot_storedV2(N_i, N_j)
+function multiplot_storedV2(p1,p2,p1_range,p2_range,N_i, N_j)
   stl = Array{Float64,2}(undef,N_i, N_j)
   rpvc = reactionparameter_def()
-  stl
-  α_min = 1.1
-  α_max = 2.0
-  δ_min = 1.1
-  δ_max = 2.0
+  mx = Array{Float64}(undef,N_i)
+  my = Array{Float64}(undef,N_j)
+
   for i in 1:N_i
     for j in 1:N_j
-      rpvc[3] = α_min + (i-1)*((α_max - α_min)/(N_i - 1))
-      rpvc[4] = δ_min + (j-1)*((δ_max - δ_min)/(N_j - 1))
+      rpvc[p1] = p1_range[2] + (i-1)*((p1_range[1] - p1_range[2])/(N_i - 1))
+      rpvc[p2] = p2_range[2]+ (j-1)*((p2_range[1] - p2_range[2])/(N_j - 1))
       lprob = ODEProblem(zerodim, u0, tspan, rpvc)
       lsol = solve(lprob)
-      stl[i,j] = [rpvc[3],rpvc[4],lsol[3][end]]
+      mx[i] = rpvc[p1]
+      my[j] = rpvc[p2]
+      stl[i,j] = lsol[3][end]
     end
   end
 
   #Define our axes
-  mx = Array{Float64}(undef,Numloops)
-  my = Array{Float64}(undef,Numloops)
-  mz = Array{Float64}(undef,Numloops)
-  for i in 1:Numloops
-    for j in 1:Numloops
-      mx[i,j] = stl[i,j][1]
-      my[i,j] = stl[i,j][2]
-      mz[i,j] = stl[i,j][3]
+  return [mx,my,stl]
+end
+
+function multiplot_storedV3(p1,p2,p1_range,p2_range,N_i, N_j,FUN)
+  stl = Array{Float64,2}(undef,N_i, N_j)
+  rpvc = reactionparameter_def()
+  mx = Array{Float64}(undef,N_i)
+  my = Array{Float64}(undef,N_j)
+
+  for i in 1:N_i
+    for j in 1:N_j
+      rpvc[p1] = p1_range[2] + (i-1)*((p1_range[1] - p1_range[2])/(N_i - 1))
+      rpvc[p2] = p2_range[2]+ (j-1)*((p2_range[1] - p2_range[2])/(N_j - 1))
+      lprob = ODEProblem(FUN, u0, tspan, rpvc)
+      lsol = solve(lprob)
+      mx[i] = rpvc[p1]
+      my[j] = rpvc[p2]
+      stl[i,j] = lsol[3][end]
     end
   end
-  return [mx,my,mz]
+
+  #Define our axes
+  return [mx,my,stl]
 end
 
 function heatmapper(heatdata)
@@ -190,7 +202,9 @@ function heatmapper(heatdata)
   hx = heatdata[1]
   hy = heatdata[2]
   hz = heatdata[3]
+
   heatmap = CairoMakie.heatmap(hx,hy,hz)
+  
   return heatmap
 end
 
@@ -200,47 +214,6 @@ function worker_ant(p1, p2,Numloops,scaler)
   return heatmap
 end
 
-
-function multiplot_stored2D(p1,p2,Numloops,scaler)
-  stl = Array{Any}(nothing,Numloops)
-  rpvc = reactionparameter_def()
-  for i in 1:Numloops
-    rpvc[p1] = rpvc[p1]*scaler
-    rpvc[p2] = rpvc[p2]*scaler
-    lprob = ODEProblem(zerodim2D, u0, tspan, rpvc)
-    lsol = solve(lprob)
-    stl[i] = [rpvc[p1],rpvc[p2],lsol[3][end]]
-  end
-
-  #Define our axes
-  mx = Array{Any}(nothing,Numloops)
-  my = Array{Any}(nothing,Numloops)
-  mz = Array{Any}(nothing,Numloops)
-  for i in 1:Numloops
-    mx[i] = stl[i][1]
-    my[i] = stl[i][2]
-    mz[i] = stl[i][3]
-  end
-
-  mx = Float64.(mx)
-  my = Float64.(my)
-  mz = Float64.(mz)
-  return [mx,my,mz]
-end
-
-function heatmapper2D(heatdata)
-  hx = heatdata[1]
-  hy = heatdata[2]
-  hz = heatdata[3]
-  heatmap = CairoMakie.heatmap(hx,hy,hz)
-  return heatmap
-end
-
-function worker_ant2D(p1, p2,Numloops,scaler)
-  work = multiplot_stored(p1,p2,Numloops,scaler)
-  heatmap = heatmapper(work)
-  return heatmap
-end
 
 function twoplotter(p1, p2, NumLoops, s1, s2)
   twopsl = Array{Any}(nothing, NumLoops)
@@ -264,21 +237,5 @@ function twoplotter(p1, p2, NumLoops, s1, s2)
     end
   end
   return twopsl
-end
-
-
-using GlobalSensitivity, QuasiMonteCarlo
-
-function sensesol(f,samples, lb, ub, rpvc, f_order = [0,1])
-
-  sampler = SobolSample()
-  lb = lb*rpvc
-  ub = ub*rpvc
-
-  A,B = QuasiMonteCarlo.generate_design_matrices(samples, lb, ub, sampler)
-
-  res1 = gsa(f, Sobol(order=f_order, A,B))
-
-  return res1
 end
 
