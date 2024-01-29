@@ -73,9 +73,6 @@ function zerodim(du, u, p, t)
   du[4] = -q*u[4] + β*(monod(u[3], ks))*(u[1] + u[2])  
 end
 
-
-
-
 function zerodim2D(du, u, p, t)
   q = p[1]
   μ = p[2]
@@ -203,10 +200,24 @@ function heatmapper(heatdata)
   hy = heatdata[2]
   hz = heatdata[3]
 
-  heatmap = CairoMakie.heatmap(hx,hy,hz)
+  ax = Axis(fig[1,2], xlabel = "Detachment Parameter δ", ylabel = "Attachment Parameter α")
+  hm = heatmap!(ax,hx,hy,hz)
+  Colorbar(fig[1,2],hm)
   
+  return fig
+end
+
+function heatmapper_flip(heatdata)
+  f = Figure()
+  hx = heatdata[1]
+  hy = heatdata[2]
+  hz = heatdata[3]
+
+  heatmap = CairoMakie.heatmap(hy,hx,hz)
+
   return heatmap
 end
+
 
 function worker_ant(p1, p2,Numloops,scaler)
   work = multiplot_stored(p1,p2,Numloops,scaler)
