@@ -1,4 +1,4 @@
-#Author: belmontz, sept 5th, 2023
+#Author: belmontz, Sept 5th, 2023
 
 #Call all the packages we will be using for our sensitivity analysis
 using DifferentialEquations
@@ -172,7 +172,7 @@ function multiplot_storedV2(p1,p2,p1_range,p2_range,N_i, N_j)
   return [mx,my,stl]
 end
 
-function multiplot_storedV3(p1,p2,p1_range,p2_range,N_i, N_j,FUN)
+function multiplot_storedV3(p1,p2,p1_range,p2_range,N_i, N_j,FUN,s)
   stl = Array{Float64,2}(undef,N_i, N_j)
   rpvc = reactionparameter_def()
   mx = Array{Float64}(undef,N_i)
@@ -186,7 +186,7 @@ function multiplot_storedV3(p1,p2,p1_range,p2_range,N_i, N_j,FUN)
       lsol = solve(lprob)
       mx[i] = rpvc[p1]
       my[j] = rpvc[p2]
-      stl[i,j] = lsol[3][end]
+      stl[i,j] = lsol[s][end]
     end
   end
 
@@ -195,7 +195,7 @@ function multiplot_storedV3(p1,p2,p1_range,p2_range,N_i, N_j,FUN)
 end
 
 function heatmapper(heatdata)
-  f = Figure()
+  fig = Figure()
   hx = heatdata[1]
   hy = heatdata[2]
   hz = heatdata[3]
@@ -213,7 +213,7 @@ function heatmapper_flip(heatdata)
   hy = heatdata[2]
   hz = heatdata[3]
 
-  heatmap = CairoMakie.heatmap(hy,hx,hz)
+  heatmap = CairoMakie.heatmap(hx,hy,hz)
 
   return heatmap
 end
