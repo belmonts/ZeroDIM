@@ -12,7 +12,7 @@ function reactionparameter_def()
     μ1 = 6.0
     μ2 = 6.1
     D1 = 1.0
-    D2 = 2.5
+    D2 = 0.6
     So = 25.0
     ks = 0.7
     rpvc = [q, ν1, ν2, μ1, μ2, D1, D2, So, ks]
@@ -49,7 +49,7 @@ function dualvessel(du, u, p,t)
 
 end
 
-u0 = [1.0; 0.0; 5.0; 0.0]
+u0 = [5.0; 0.0; 1.0; 0.0]
 
 tspan = (0.0, 10.0)
 
@@ -57,3 +57,5 @@ prob = ODEProblem(dualvessel, u0, tspan, rpvc)
 sol = solve(prob)
 using Plots
 Plots.plot(sol)
+
+
